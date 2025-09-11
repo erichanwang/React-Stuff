@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function Square({ value, onSquareClick }) {
   return (
@@ -8,9 +8,9 @@ function Square({ value, onSquareClick }) {
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
+function Board({ xIsNext, squares, onPlay, isAITurn }) {
   function handleClick(i) {
-    if (calculateWinner(squares) || squares[i]) {
+    if (calculateWinner(squares) || squares[i] || isAITurn) {
       return;
     }
     const nextSquares = squares.slice();
@@ -26,6 +26,8 @@ function Board({ xIsNext, squares, onPlay }) {
   let status;
   if (winner) {
     status = 'Winner: ' + winner;
+  } else if (squares.every(Boolean)) {
+    status = 'Draw!';
   } else {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
@@ -52,11 +54,63 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
+function minimax(squares, isMaximizing) {
+  const winner = calculateWinner(squares);
+  if (winner === 'O') return { score: 1 };
+  if (winner === 'X') return { score: -1 };
+  if (squares.every(Boolean)) return { score: 0 };
+
+  if (isMaximizing) {
+    let bestScore = -Infinity;
+    let bestMove = null;
+    for (let i = 0; i < squares.length; i++) {
+      if (!squares[i]) {
+        const newSquares = squares.slice();
+        newSquares[i] = 'O';
+        const result = minimax(newSquares, false);
+        if (result.score > bestScore) {
+          bestScore = result.score;
+          bestMove = i;
+        }
+      }
+    }
+    return { score: bestScore, move: bestMove };
+  } else {
+    let bestScore = Infinity;
+    let bestMove = null;
+    for (let i = 0; i < squares.length; i++) {
+      if (!squares[i]) {
+        const newSquares = squares.slice();
+        newSquares[i] = 'X';
+        const result = minimax(newSquares, true);
+        if (result.score < bestScore) {
+          bestScore = result.score;
+          bestMove = i;
+        }
+      }
+    }
+    return { score: bestScore, move: bestMove };
+  }
+}
+
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [playWithAI, setPlayWithAI] = useState(false);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
+  const isAITurn = playWithAI && !xIsNext;
+
+  useEffect(() => {
+    if (isAITurn) {
+      const { move } = minimax(currentSquares, true);
+      if (move !== null) {
+        const nextSquares = currentSquares.slice();
+        nextSquares[move] = 'O';
+        handlePlay(nextSquares);
+      }
+    }
+  }, [isAITurn, currentSquares]);
 
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
@@ -83,11 +137,26 @@ export default function Game() {
   });
 
   return (
-    <div className="game">
-      <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+    <div className="game" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '40px' }}>
+      <h1 style={{ fontSize: '48px', marginBottom: '20px' }}>Tic Tac Toe</h1>
+      <div style={{ marginBottom: '20px' }}>
+        <label>
+          <input
+            type="checkbox"
+            checked={playWithAI}
+            onChange={(e) => {
+              setPlayWithAI(e.target.checked);
+              setHistory([Array(9).fill(null)]);
+              setCurrentMove(0);
+            }}
+          />
+          Play against AI
+        </label>
       </div>
-      <div className="game-info">
+      <div className="game-board" style={{ border: '4px solid #333', padding: '20px', borderRadius: '10px', backgroundColor: '#f0f0f0' }}>
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} isAITurn={isAITurn} />
+      </div>
+      <div className="game-info" style={{ marginTop: '20px' }}>
         <ol>{moves}</ol>
       </div>
     </div>
