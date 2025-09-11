@@ -1,0 +1,86 @@
+/* Tic Tac Toe Styles */
+
+.game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.game h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.game-board {
+  border: 4px solid #333;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+}
+
+.board-row {
+  display: flex;
+  justify-content: center;
+}
+
+.square {
+  width: 80px;
+  height: 80px;
+  font-size: 48px;
+  border: 2px solid #333;
+  background-color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  border-radius: 5px;
+}
+
+.square:hover {
+  background-color: #f0f0f0;
+}
+
+.status {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.game-info {
+  margin-top: 20px;
+}
+
+.game-info ol {
+  padding-left: 30px;
+}
+
+.game-info li {
+  margin: 10px 0;
+}
+
+.game-info button {
+  background-color: #fff;
+  border: 1px solid #333;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.game-info button:hover {
+  background-color: #f0f0f0;
+}
+
+.checkbox-container {
+  margin-bottom: 20px;
+}
+
+.checkbox-container label {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.checkbox-container input {
+  margin-right: 10px;
+}
